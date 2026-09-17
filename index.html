@@ -178,6 +178,20 @@ body{font-family:var(--s);background:var(--bg);color:var(--tx);min-height:100vh;
 .tl-item .tl-handle{color:var(--txd);font-size:.7rem;cursor:grab}
 .tl-item.tl-correct{border-color:var(--gs);color:var(--gs)}.tl-item.tl-wrong{border-color:var(--red);color:var(--red)}
 .tl-num{font-family:var(--m);font-size:.6rem;color:var(--txd);min-width:18px}
+/* CLASSIFY LAB */
+.cls-panel{background:var(--bgc);border:1px solid var(--bdr);border-radius:4px;width:100%;margin-bottom:.5rem;padding:.6rem}
+.cls-prompt{font-size:.78rem;line-height:1.4;margin-bottom:.5rem}
+.cls-items{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.6rem;min-height:2rem}
+.cls-item{background:var(--bgp);border:1px solid var(--bdr);border-radius:3px;padding:.35rem .6rem;font-size:.72rem;font-family:var(--s);color:var(--tx);cursor:pointer;transition:all .15s;user-select:none}
+.cls-item:hover{border-color:var(--gs)}
+.cls-item.sel{border-color:var(--sp);background:var(--spd);box-shadow:0 0 6px var(--spd)}
+.cls-item.cls-correct{border-color:var(--gs);color:var(--gs);cursor:default}
+.cls-item.cls-wrong{border-color:var(--red);color:var(--red);cursor:default}
+.cls-cats{display:flex;flex-wrap:wrap;gap:.5rem}
+.cls-cat{flex:1;min-width:120px;background:var(--bgp);border:1px solid var(--bdr);border-radius:4px;padding:.4rem}
+.cls-cat-label{font-family:var(--m);font-size:.62rem;color:var(--pbq);text-align:center;padding:.3rem;cursor:pointer;border-radius:3px;letter-spacing:.04em}
+.cls-cat-label:hover{background:var(--pbqd)}
+.cls-cat-drop{display:flex;flex-wrap:wrap;gap:.3rem;min-height:1.6rem;margin-top:.3rem}
 /* TALLY */
 .tallybox{background:var(--bgc);border:1px solid var(--bdr);border-radius:4px;padding:1rem;width:min(400px,90vw);text-align:center;margin-bottom:.8rem}
 .tallyt{font-family:'Fraunces',serif;font-size:1.3rem;color:#8AA95B;margin-bottom:.3rem}
@@ -1148,6 +1162,55 @@ items:[
 q:"If the ERP system has a 4-hour RTO and email has an 8-hour RTO, which statement is correct?",
 a:["ERP must be restored before email — shorter RTO means higher priority","Email goes first because more people use it","Both should be restored simultaneously","RTO does not determine restoration order"],c:0,
 ex:"Systems are restored in order of RTO urgency. The shortest RTO gets restored first because it has the least tolerance for downtime.",w:["Restoring the higher-usage but longer-RTO system first would leave the more time-critical ERP system down longer than its tolerance allows.", "Simultaneous restoration usually isn't possible with limited resources during a crisis; prioritization is necessary.", "RTO is specifically the metric used to sequence recovery priority — that's its defined purpose."]}
+],
+classify:[
+{title:"Physical Control Types",domain:1,
+prompt:"Sort each physical security measure into the control category it primarily represents.",
+categories:["Preventive","Detective","Deterrent"],
+items:[
+{text:"Bollards blocking vehicle access",cat:0},
+{text:"Locked server room door",cat:0},
+{text:"Mantrap at the main entrance",cat:0},
+{text:"Motion sensor logging after-hours movement",cat:1},
+{text:"CCTV camera recording the loading dock",cat:1},
+{text:"'Premises Under 24/7 Surveillance' sign",cat:2},
+{text:"Visible security guard booth",cat:2}
+],
+q:"Which category of control is specifically designed to stop unauthorized access before it happens, rather than record it or merely discourage it?",
+a:["Preventive — physically blocks or restricts access","Detective — records and alerts after the fact","Deterrent — discourages an attempt through visible presence","Compensating — substitutes for a missing control"],c:0,
+ex:"Preventive controls (locks, bollards, mantraps) physically stop access attempts before they succeed. Detective controls record what already happened, and deterrent controls only discourage — neither actually blocks entry.",
+w:["Detective controls (cameras, sensors) capture evidence of an event that has already occurred; they don't stop it from happening.", "Deterrent controls (signage, visible guards) only discourage an attempt — a determined attacker isn't physically stopped by them.", "A compensating control is an alternative to a missing required control, not a category defined by blocking access."]},
+{title:"Backup Types",domain:3,
+prompt:"Sort each backup job description into the backup type it describes.",
+categories:["Full","Incremental","Differential"],
+items:[
+{text:"Copies every selected file, every time, regardless of changes",cat:0},
+{text:"Copies only files changed since the most recent backup of any kind",cat:1},
+{text:"Copies all files changed since the last full backup, no matter how long ago",cat:2},
+{text:"Fast to run nightly, but restores require every backup since the last full one, applied in order",cat:1},
+{text:"Slower to run than incremental as time passes, but only the most recent one plus the full backup are needed to restore",cat:2}
+],
+q:"A server backed up with a full backup every Sunday and a differential backup every other day fails on Thursday. How many backup sets are needed to restore it?",
+a:["Two — Sunday's full backup plus Wednesday's differential","Four — the full backup plus every differential since Sunday","One — just Wednesday's differential","Seven — every backup taken that week"],c:0,
+ex:"Each differential backup captures everything changed since the last FULL backup, so only the most recent differential (Wednesday's) plus the original full backup are needed — unlike incremental backups, which chain together and require every one since the last full.",
+w:["Incremental backups are the ones that chain together and need every set since the full backup — differentials don't work that way.", "A differential alone doesn't include the full backup's baseline data, so it can't restore the system by itself.", "Only the most recent differential is needed since it already contains all changes since Sunday's full backup."],"mode":"application"},
+{title:"Security Control Categories",domain:1,
+prompt:"Sort each example into the security control category it represents.",
+categories:["Technical","Managerial","Operational","Physical"],
+items:[
+{text:"A firewall rule blocking inbound traffic",cat:0},
+{text:"Disk encryption on company laptops",cat:0},
+{text:"An annual enterprise risk assessment plan",cat:1},
+{text:"Security requirements built into vendor procurement",cat:1},
+{text:"An analyst's daily review of access logs",cat:2},
+{text:"Security awareness training delivered to new hires",cat:2},
+{text:"A locked server room door",cat:3},
+{text:"A security guard at the building entrance",cat:3}
+],
+q:"An analyst who reviews logs daily and an executive who writes the quarterly risk assessment plan are both doing security work — but in different control categories. Which pairing is correct?",
+a:["The analyst's daily review is operational; the risk assessment plan is managerial", "Both activities are managerial, since both involve security planning", "The analyst's work is technical, since logs come from technology", "The risk assessment plan is operational, since it happens regularly"],c:0,
+ex:"Operational controls are the routine, hands-on tasks people perform day to day (like reviewing logs). Managerial controls focus on the mechanics of risk management itself — like writing the risk assessment plan — even though both are performed by people rather than enforced by technology.",
+w:["Both aren't managerial — the daily hands-on log review is operational, a distinct category from the risk-management planning process.", "Technical controls are specifically enforced BY technology (like a firewall rule); a person reviewing log output is performing an operational task, not a technical control itself.", "A recurring risk assessment plan is still managerial — it governs the risk management process, regardless of how often it's performed."],"mode":"application"}
 ]
 };
 // ============================================================
@@ -1509,6 +1572,7 @@ function showInteractive(enc){
     case 'logs':html=renderLogs(sc);break;
     case 'firewall':html=renderFirewallBuilder(sc);C.fwScenario=sc;break;
     case 'timeline':html=renderTimeline(sc);C.tlScenario=sc;break;
+    case 'classify':html=renderClassify(sc);C.clsScenario=sc;break;
   }
   ia.innerHTML=html;
   if(enc.subtype==='wireshark'||enc.subtype==='logs'){
@@ -1594,6 +1658,52 @@ function submitTimeline(){
   save();updateHud('c-');
   // Show follow-up
   document.getElementById('qbox').style.display='';document.getElementById('qdom').textContent='Sequence Lab';document.getElementById('qtxt').textContent=sc.q;
+  const idx2=[0,1,2,3];shuffle(idx2);const ad=document.getElementById('qans');ad.innerHTML='';
+  idx2.forEach(i=>{const b=document.createElement('button');b.className='abtn';b.textContent=sc.a[i];b.onclick=()=>ansInt(i,sc,b);ad.appendChild(b);});
+}
+// CLASSIFY LAB — tap an item, then tap a category to assign it (works on touch, no native drag)
+let clsSelected=null,clsAssignments=[];
+function renderClassify(scenario){
+  const idx=scenario.items.map((_,i)=>i);shuffle(idx);
+  clsAssignments=new Array(scenario.items.length).fill(-1);
+  clsSelected=null;
+  let h=`<div class="cls-panel"><div class="cls-prompt">${scenario.prompt}</div><div class="cls-items" id="cls-items">`;
+  idx.forEach(i=>{h+=`<button class="cls-item" id="cls-item-${i}" onclick="clsSelectItem(${i})">${scenario.items[i].text}</button>`;});
+  h+=`</div><div class="cls-cats" id="cls-cats">`;
+  scenario.categories.forEach((cat,ci)=>{h+=`<div class="cls-cat"><div class="cls-cat-label" onclick="clsAssign(${ci})">${cat}</div><div class="cls-cat-drop" id="cls-drop-${ci}"></div></div>`;});
+  h+=`</div><button class="btn btn-sm" id="cls-submit-btn" style="margin-top:.5rem;display:none" onclick="submitClassify()">SUBMIT</button></div>`;
+  return h;
+}
+function clsSelectItem(i){
+  document.querySelectorAll('.cls-item').forEach(el=>el.classList.remove('sel'));
+  clsSelected=i;
+  const el=document.getElementById('cls-item-'+i);if(el)el.classList.add('sel');
+}
+function clsAssign(catIdx){
+  if(clsSelected===null)return;
+  const sc=C.clsScenario;if(!sc)return;
+  clsAssignments[clsSelected]=catIdx;
+  const item=document.getElementById('cls-item-'+clsSelected);
+  const drop=document.getElementById('cls-drop-'+catIdx);
+  if(item&&drop)drop.appendChild(item);
+  item.classList.remove('sel');item.onclick=null;
+  clsSelected=null;
+  if(clsAssignments.every(a=>a>=0))document.getElementById('cls-submit-btn').style.display='';
+}
+function submitClassify(){
+  const sc=C.clsScenario;if(!sc)return;
+  let allOk=true;
+  sc.items.forEach((it,i)=>{
+    const el=document.getElementById('cls-item-'+i);if(!el)return;
+    if(clsAssignments[i]===it.cat)el.classList.add('cls-correct');
+    else{el.classList.add('cls-wrong');allOk=false;}
+  });
+  document.getElementById('cls-submit-btn').style.display='none';
+  const fb=document.getElementById('fbb');
+  if(allOk){fb.className='fbb show cfb';fb.innerHTML='<strong>All correctly classified!</strong>';showSparks();showDmg('-1',false);C.eHp=0;updateEH();S.tc++;C.fc++;S.xp+=XPINT;}
+  else{fb.className='fbb show wfb';fb.innerHTML='<strong>Some were misclassified.</strong> Review the highlighted items above.';S.hp-=DIFF[S.diff].pDmg;S.tw++;C.fw++;C.perfect=false;shakeScr();if(S.hp<=0){S.hp=0;save();updateHud('c-');setTimeout(()=>showScreen('gameover-screen'),600);return;}}
+  save();updateHud('c-');
+  document.getElementById('qbox').style.display='';document.getElementById('qdom').textContent='Classification Lab';document.getElementById('qtxt').textContent=sc.q;
   const idx2=[0,1,2,3];shuffle(idx2);const ad=document.getElementById('qans');ad.innerHTML='';
   idx2.forEach(i=>{const b=document.createElement('button');b.className='abtn';b.textContent=sc.a[i];b.onclick=()=>ansInt(i,sc,b);ad.appendChild(b);});
 }
