@@ -18,3 +18,7 @@ If GitHub Pages is enabled for this repo, it'll also be playable directly at the
 ## Tech
 
 Plain HTML/CSS/JS in a single file. No build tooling, no frameworks.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
