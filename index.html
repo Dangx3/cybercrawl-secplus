@@ -231,7 +231,8 @@ body{font-family:var(--s);background:var(--bg);color:var(--tx);min-height:100vh;
 </div>
 <div id="role-desc" class="ddesc">Choose a specialization (optional). It changes which questions get emphasized in practice — never the correct answers.</div>
 <button class="btn" onclick="startGame()">JACK IN</button>
-<div id="resume-section" style="display:none;margin-top:.5rem"><div style="font-size:.58rem;color:var(--txd);margin-bottom:.35rem">Your character, review data, role and cleared sectors are saved. The exact in-progress encounter is not.</div><button class="btn btn-sm" onclick="resumeGame()">RESUME</button> <button class="btn-d btn btn-sm" onclick="clearSave()">WIPE</button></div>
+<div id="resume-section" style="display:none;margin-top:.5rem"><div style="font-size:.58rem;color:var(--txd);margin-bottom:.35rem">Your character, review data, role and cleared sectors are saved. The exact in-progress encounter is not.</div><button class="btn btn-sm" onclick="resumeGame()">RESUME</button> <button class="btn-d btn btn-sm" onclick="clearSave()">WIPE</button> <button class="btn btn-sm" onclick="exportSave()">EXPORT</button></div>
+<div style="margin-top:.5rem"><label class="btn btn-sm" style="display:inline-block;cursor:pointer;margin-top:0">IMPORT<input type="file" accept="application/json" style="display:none" onchange="importSaveFile(this)"></label><div id="save-io-msg" style="font-family:var(--m);font-size:.6rem;color:var(--txd);margin-top:.35rem;min-height:1em"></div></div>
 </div></div>
 
 <div id="map-screen" class="screen">
@@ -1343,6 +1344,36 @@ function loadS(){
   return null;
 }
 function clearSave(){localStorage.removeItem('cc_s');document.getElementById('resume-section').style.display='none';}
+function ioMsg(t,c){const e=document.getElementById('save-io-msg');if(!e)return;e.textContent=t;e.style.color=c||'var(--txd)';}
+function exportSave(){
+  try{
+    const bundle={app:'cybercrawl',version:SAVE_VER,exportedAt:new Date().toISOString(),cc_s:localStorage.getItem('cc_s'),cc_m:localStorage.getItem('cc_m'),cc_l:localStorage.getItem('cc_l')};
+    const blob=new Blob([JSON.stringify(bundle)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download='cybercrawl-save-'+new Date().toISOString().slice(0,10)+'.json';
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    ioMsg('Save file downloaded.','var(--gs)');
+  }catch(e){ioMsg('Export failed in this browser.','var(--red)');}
+}
+function importSaveFile(input){
+  const file=input.files&&input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const bundle=JSON.parse(reader.result);
+      if(bundle.app!=='cybercrawl'||!bundle.cc_s)throw new Error('not a CyberCrawl save file');
+      localStorage.setItem('cc_s',bundle.cc_s);
+      if(bundle.cc_m)localStorage.setItem('cc_m',bundle.cc_m);
+      if(bundle.cc_l)localStorage.setItem('cc_l',bundle.cc_l);
+      ioMsg('Save imported — reloading...','var(--gs)');
+      setTimeout(()=>location.reload(),700);
+    }catch(e){ioMsg("That doesn't look like a CyberCrawl save file.",'var(--red)');}
+  };
+  reader.readAsText(file);
+  input.value='';
+}
 window.addEventListener('DOMContentLoaded',()=>{
   document.addEventListener('click',e=>{
     const b=e.target.closest('.wtoggle');if(!b)return;
