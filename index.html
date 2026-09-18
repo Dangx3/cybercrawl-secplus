@@ -32,7 +32,7 @@ body{font-family:var(--s);background:var(--bg);color:var(--tx);min-height:100vh;
 .nsign{position:absolute;font-family:var(--m);font-size:.5rem;color:#B87333;text-shadow:0 0 6px #B87333;animation:nf 3s infinite}
 @keyframes nf{0%,95%,100%{opacity:1}96%{opacity:.3}97%{opacity:1}98%{opacity:.5}}
 /* COMBAT SCENE */
-.cscene{position:relative;display:flex;align-items:flex-end;justify-content:center;gap:2.5rem;padding:1rem 0 0.5rem;min-height:120px;background:none;width:100%;max-width:630px;margin:0 auto}
+.cscene{position:relative;display:flex;align-items:flex-end;justify-content:center;gap:2.5rem;padding:1rem 0 0.5rem;min-height:120px;background:linear-gradient(rgba(8,12,18,.55),rgba(8,12,18,.78)),url('images/bg-cityscape.jpg') center/cover;border-radius:4px;width:100%;max-width:630px;margin:0 auto}
 .hero-area{position:relative;z-index:2}.hero-sp{width:44px;height:60px;image-rendering:pixelated}
 .earea{position:relative;z-index:2;text-align:center}
 .esprite{width:52px;height:68px;image-rendering:pixelated;transition:transform .15s,filter .15s}
@@ -97,7 +97,7 @@ body{font-family:var(--s);background:var(--bg);color:var(--tx);min-height:100vh;
 .ehpt{font-family:var(--m);font-size:.6rem;color:var(--txd)}
 .rctr{font-family:var(--m);font-size:.58rem;color:var(--txd);margin-top:.1rem}
 .atkch{display:flex;gap:.4rem;justify-content:center;margin-bottom:.5rem;flex-wrap:wrap}
-.qbox{background:linear-gradient(180deg,#0f1e24,#0b1418);border:1px solid #1E626B44;border-radius:4px;padding:.9rem;width:100%;margin-bottom:.5rem;box-shadow:0 0 20px rgba(30,98,107,0.1) inset,0 1px 0 #1E626B22}
+.qbox{background:linear-gradient(180deg,rgba(15,30,36,.72),rgba(11,20,24,.82)),url('images/bg-terminal.jpg') center/cover;border:1px solid #1E626B44;border-radius:4px;padding:.9rem;width:100%;margin-bottom:.5rem;box-shadow:0 0 20px rgba(30,98,107,0.1) inset,0 1px 0 #1E626B22}
 .qbox.spbox{border-color:var(--sp);background:var(--spd)}
 .qdom{font-family:var(--m);font-size:.6rem;color:var(--txd);margin-bottom:.4rem}
 .qtxt{font-size:.88rem;line-height:1.45;margin-bottom:.7rem}
@@ -2040,7 +2040,7 @@ function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random
 // AUDIO ENGINE — 4-track MP3 playlist, loops forever
 // ============================================================
 const PLAYLIST = [
-  { name: 'Track 1', src: 'audio/track1.mp3' },
+  { name: 'Under Iron Skies', src: 'audio/track1.mp3' },
   { name: 'Track 2', src: 'audio/track2.mp3' },
   { name: 'Track 3', src: 'audio/track3.mp3' },
   { name: 'Track 4', src: 'audio/track4.mp3' },
