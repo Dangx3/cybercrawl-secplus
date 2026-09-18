@@ -957,7 +957,7 @@ function renderWireshark(scenario){
 }
 
 function renderTerminal(scenario){
-  return `<div class="term-panel" id="term-panel"><div class="term-out" id="term-out">${scenario.prompt||'user@sec-ops:~$ '}<br>${scenario.context||''}</div><div class="term-inw"><span class="term-prompt">${scenario.promptStr||'user@sec-ops:~$ '}</span><input type="text" class="term-in" id="term-in" autocomplete="off" spellcheck="false"><span class="term-cursor"></span></div></div>`;
+  return `<div class="term-panel" id="term-panel"><div class="term-out" id="term-out">${scenario.prompt||'user@sec-ops:~$ '}<br>${scenario.context||''}</div><div class="term-inw"><span class="term-prompt">${scenario.promptStr||'user@sec-ops:~$ '}</span><input type="text" class="term-in" id="term-in" autocomplete="off" spellcheck="false"><span class="term-cursor"></span></div>${scenario.hint?'<button class="btn btn-sm" id="term-hint-btn" style="margin-top:.4rem" onclick="showTermHint()">SHOW HINT</button>':''}</div>`;
 }
 
 function renderLogs(scenario){
@@ -1068,24 +1068,28 @@ ex:"Unsolicited ARP replies claiming 10.0.0.1 is at a different MAC address is c
 terminal:[
 {title:"Network Reconnaissance",domain:4,promptStr:"analyst@soc:~$ ",context:"ALERT: Suspicious port scan detected from internal host 10.0.1.15\nYour task: Identify what services the attacker found open on the target server 10.0.1.50\n\nType the nmap command to scan 10.0.1.50 for open services with version detection.\n",
 expected:["nmap -sv 10.0.1.50","nmap -sv -p- 10.0.1.50","nmap 10.0.1.50 -sv"],
+hint:"nmap -sV [target-ip] - the -sV flag enables version detection.",
 output:"Starting Nmap 7.94\nPORT     STATE  SERVICE    VERSION\n22/tcp   open   ssh        OpenSSH 8.9p1\n80/tcp   open   http       Apache 2.4.52\n443/tcp  open   https      Apache 2.4.52\n3306/tcp open   mysql      MySQL 5.7.38\n8080/tcp open   http-proxy Squid 4.13\n\nService detection performed.\nNmap done: 1 IP scanned, 5 services detected",
 q:"Based on the nmap output, which service presents the highest risk if exposed to the internet?",
 a:["MySQL on port 3306 - database servers should never be internet-facing","SSH on port 22 - always a risk","Apache on port 80 - web servers are inherently dangerous","Squid on port 8080 - proxies are always vulnerable"],c:0,
 ex:"MySQL (3306) exposed to the network is a critical finding. Database servers should be in a private subnet accessible only from the application tier.",w:["SSH is commonly and appropriately exposed for administration when properly secured; it isn't inherently the highest risk here.", "A web server on port 80 is expected to be reachable - that's its intended purpose.", "A proxy on 8080 is a lower-severity finding than a database engine being directly reachable."]},
 {title:"Incident Containment",domain:4,promptStr:"ir-lead@forensics:~$ ",context:"INCIDENT: Ransomware detected on workstation WS-042 (10.0.2.42)\nThe machine is still powered on and connected to the network.\nContain the threat by isolating the host.\n\nType the command to block all traffic to/from 10.0.2.42 on the firewall.\n",
 expected:["iptables -a input -s 10.0.2.42 -j drop","iptables -i input -s 10.0.2.42 -j drop","firewall-cmd --add-rich-rule='rule family=ipv4 source address=10.0.2.42 drop'"],
+hint:"iptables -A INPUT -s [ip] -j DROP - append a DROP rule for traffic from that source IP.",
 output:"Rule added: DROP all traffic from/to 10.0.2.42\nVerifying isolation...\n$ ping 10.0.2.42\nDESTINATION HOST UNREACHABLE\n\nHost 10.0.2.42 successfully isolated from network.",
 q:"After network isolation, what should you capture first from WS-042?",
 a:["RAM dump - volatile evidence must be captured before power is lost","Hard drive image - need a full clone first","Browser history - check what the user was doing","Nothing - wipe and reimage immediately"],c:0,
 ex:"RAM contains running processes, encryption keys, and network connections. Order of volatility says capture the most volatile evidence first. A RAM dump preserves data that disappears on shutdown.",w:["A disk image is valuable but far less time-sensitive than volatile memory contents.", "Browser history is a narrow artifact and isn't the volatility-ranked priority.", "Wiping immediately destroys all evidence, the opposite of proper incident handling."]},
 {title:"Log Investigation",domain:4,promptStr:"analyst@siem:~$ ",context:"SIEM ALERT: Possible brute force against SSH server 10.0.1.5\nReview the auth log.\n\nType the command to search the auth log for failed SSH logins.\n",
 expected:["grep 'failed password' /var/log/auth.log","grep -i 'failed' /var/log/auth.log","cat /var/log/auth.log | grep failed","journalctl -u sshd | grep failed"],
+hint:"grep 'failed password' /var/log/auth.log - search the auth log for failed login attempts.",
 output:"Sep 15 02:14:01 srv01 sshd[4521]: Failed password for root from 203.0.113.42 port 49832\nSep 15 02:14:03 srv01 sshd[4522]: Failed password for root from 203.0.113.42 port 49833\nSep 15 02:14:05 srv01 sshd[4523]: Failed password for admin from 203.0.113.42 port 49834\nSep 15 02:14:07 srv01 sshd[4524]: Failed password for admin from 203.0.113.42 port 49835\nSep 15 02:14:09 srv01 sshd[4525]: Failed password for root from 203.0.113.42 port 49836\nSep 15 02:14:11 srv01 sshd[4526]: Accepted password for root from 203.0.113.42 port 49837",
 q:"What critical finding does the last log entry reveal?",
 a:["The attacker successfully authenticated as root - the brute force succeeded","The SSH service crashed","The firewall blocked the attacker","The account was locked out"],c:0,
 ex:"'Accepted password for root' means the brute force worked. Root SSH access from an external IP is a critical compromise. Immediate response: disable the account, kill active sessions, investigate what the attacker did.",w:["The log shows a successful authentication, not a service crash.", "The log shows ACCEPTED, meaning the firewall did not block this connection.", "The log shows a successful login, the opposite of a lockout."]},
 {title:"Malware Persistence Investigation",domain:2,promptStr:"analyst@ir:~$ ",context:"ALERT: Workstation WS-118 keeps reinfecting itself with the same malware minutes after antivirus removes the executable.\nYour task: Find what is relaunching the malware after each removal.\n\nType the command to list scheduled tasks on this Windows host.\n",
 expected:["schtasks /query","schtasks /query /fo list /v","schtasks /query /v"],
+hint:"schtasks /query - lists all scheduled tasks on this Windows host.",
 output:"TaskName: WindowsUpdateHelper\nNext Run Time: At log on\nStatus: Ready\nTask To Run: C:\\Users\\Public\\svc32.exe\n\nTaskName: GoogleUpdateTaskMachineCore\nNext Run Time: 3:00:00 AM\nStatus: Ready\nTask To Run: C:\\Program Files\\Google\\Update\\GoogleUpdate.exe",
 q:"Based on the scheduled tasks found, what is the attacker using for persistence?",
 a:["A malicious scheduled task that relaunches the payload at every logon","A registry Run key launching the payload at startup","A malicious Windows service set to auto-start","A shortcut placed in the user's Startup folder"],c:0,
@@ -1713,7 +1717,7 @@ function showInteractive(enc){
   let html='';
   switch(enc.subtype){
     case 'wireshark':html=renderWireshark(sc);break;
-    case 'terminal':html=renderTerminal(sc);
+    case 'terminal':html=renderTerminal(sc);C.termScenario=sc;C.termAttempts=0;
       setTimeout(()=>{const inp=document.getElementById('term-in');if(inp){inp.addEventListener('keydown',e=>{if(e.key==='Enter')submitTermCmd(sc)});inp.focus();}},100);
       break;
     case 'logs':html=renderLogs(sc);break;
@@ -1753,8 +1757,20 @@ function submitTermCmd(sc){
     document.getElementById('fbb').className='fbb';document.getElementById('fbb').innerHTML='';document.getElementById('next-btn').style.display='none';
   }else{
     out.innerHTML+='<span style="color:var(--red)">bash: command not found or incorrect syntax. Try again.</span>\n';
+    C.termAttempts=(C.termAttempts||0)+1;
+    if(C.termAttempts===3&&sc.hint){
+      out.innerHTML+='<span style="color:var(--sp)">HINT: '+sc.hint+'</span>\n';
+    }
     out.scrollTop=out.scrollHeight;
   }
+}
+function showTermHint(){
+  const sc=C.termScenario;if(!sc||!sc.hint)return;
+  const out=document.getElementById('term-out');if(!out)return;
+  out.innerHTML+='<span style="color:var(--sp)">HINT: '+sc.hint+'</span>\n';
+  out.scrollTop=out.scrollHeight;
+  const btn=document.getElementById('term-hint-btn');if(btn)btn.disabled=true;
+  const inp=document.getElementById('term-in');if(inp)inp.focus();
 }
 function submitFwRule(){
   const sc=C.fwScenario;if(!sc)return;
