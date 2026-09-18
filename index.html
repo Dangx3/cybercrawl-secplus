@@ -225,6 +225,37 @@ body{font-family:var(--s);background:var(--bg);color:var(--tx);min-height:100vh;
 .skip-btn svg{width:14px;height:14px}
 .track-name{font-family:var(--m);font-size:.48rem;color:var(--txd);max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:0;transition:opacity .2s}
 .audio-ctrl:hover .track-name{opacity:1}
+
+/* FLASHCARDS */
+.fc-setup{display:flex;flex-direction:column;align-items:center;gap:.6rem;padding:1rem}
+.fc-domsel{display:flex;gap:.4rem;flex-wrap:wrap;justify-content:center;max-width:420px}
+.fc-count{font-family:var(--m);font-size:.6rem;color:var(--txd)}
+.fc-wrap{width:100%;max-width:480px;margin:0 auto;padding:0 1rem}
+.fc-progress{font-family:var(--m);font-size:.62rem;color:var(--txd);text-align:center;margin-bottom:.6rem}
+.fcard{perspective:1200px;width:100%;min-height:240px;cursor:pointer}
+.fcard-inner{position:relative;width:100%;height:100%;min-height:240px;transition:transform .5s cubic-bezier(.4,.2,.2,1);transform-style:preserve-3d}
+.fcard.flipped .fcard-inner{transform:rotateY(180deg)}
+.fcard-face{position:absolute;inset:0;backface-visibility:hidden;border:1px solid var(--bdr);border-radius:6px;padding:1.1rem;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;gap:.5rem;overflow-y:auto}
+.fcard-front{background:var(--bgp)}
+.fcard-back{background:var(--bgc);transform:rotateY(180deg);border-color:var(--gs)}
+.fc-dom{font-family:var(--m);font-size:.58rem;color:var(--txd);letter-spacing:.04em}
+.fc-q{font-size:.92rem;line-height:1.45}
+.fc-tap{font-family:var(--m);font-size:.55rem;color:var(--txd);opacity:.6;text-align:center;margin-top:auto}
+.fc-ans{font-size:.85rem;color:var(--gs);font-weight:600;line-height:1.4}
+.fc-ex{font-size:.72rem;color:var(--txd);line-height:1.4}
+.fc-rate{display:none;gap:.5rem;justify-content:center;margin-top:.8rem}
+.fc-rate.show{display:flex}
+.fc-rate .btn{margin-top:0}
+.fc-stage{position:relative;margin-top:90px}
+.robo-cheer{position:absolute;left:50%;bottom:100%;transform:translateX(-50%);width:70px;height:80px;pointer-events:none;opacity:0;z-index:20}
+.robo-cheer.show{animation:robo-in .9s ease-out forwards}
+@keyframes robo-in{0%{opacity:0;transform:translate(-50%,10px) scale(.6)}15%{opacity:1;transform:translate(-50%,-6px) scale(1)}70%{opacity:1}100%{opacity:0;transform:translate(-50%,-6px) scale(1)}}
+.robo-body{animation:robo-bounce .5s ease-in-out infinite}
+@keyframes robo-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.robo-arm-l{transform-origin:29px 40px;animation:robo-wave-l .3s ease-in-out infinite}
+.robo-arm-r{transform-origin:41px 40px;animation:robo-wave-r .3s ease-in-out infinite}
+@keyframes robo-wave-l{0%,100%{transform:rotate(-15deg)}50%{transform:rotate(-45deg)}}
+@keyframes robo-wave-r{0%,100%{transform:rotate(15deg)}50%{transform:rotate(45deg)}}
 </style>
 </head>
 <body>
@@ -286,6 +317,39 @@ body{font-family:var(--s);background:var(--bg);color:var(--tx);min-height:100vh;
 <div id="gameover-screen" class="screen" style="align-items:center;justify-content:center;text-align:center;padding:1.5rem"><div style="font-family:var(--m);font-size:1.5rem;color:var(--red);margin-bottom:.6rem">CONNECTION LOST</div><p style="color:var(--txd);margin-bottom:1rem">Firewall collapsed.</p><button class="btn btn-d" onclick="retryFloor()">RETRY</button> <button class="btn" onclick="returnToMap()">MAP</button></div>
 <div id="victory-screen" class="screen" style="align-items:center;justify-content:center;text-align:center;padding:1.2rem"><div style="font-family:var(--m);font-size:1.5rem;color:var(--xp);margin-bottom:.3rem">NETWORK SECURED</div><div id="v-sub" style="color:var(--txd);margin-bottom:1rem;font-size:.78rem"></div><div class="fstats" id="fstats"></div><div class="leadbox"><h4>SAVE REPORT INFO (LOCAL)</h4><p>Stored only in this browser's local storage - nothing is sent anywhere.</p><input type="text" class="leadin" id="lead-name" placeholder="Name"><input type="email" class="leadin" id="lead-email" placeholder="Email (optional, for your own reference)"><button class="btn btn-sm" onclick="submitLead()">SAVE</button><div id="lead-confirm" style="display:none;font-family:var(--m);font-size:.65rem;margin-top:.3rem"></div></div><div style="display:flex;gap:.3rem;justify-content:center;flex-wrap:wrap"><button class="btn btn-sm" onclick="copyScore()">COPY</button><button class="btn btn-sm" onclick="location.reload()">AGAIN</button></div></div>
 <div id="study-screen" class="screen" style="align-items:center"><div class="ghdr"><a href="https://gridsage.ca" target="_blank" class="glogo"><svg viewBox="0 0 22 22" fill="none"><rect x=".5" y=".5" width="21" height="21" rx="3" stroke="#1E626B" stroke-width="1"/><rect x="9" y="9" width="3" height="3" fill="#1E626B"/></svg><span>GR<span style="color:#B87333">i</span>DSAGE</span></a><button class="btn btn-sm" onclick="confirmEndStudy()" style="margin:0;border-color:var(--txd);color:var(--txd)">EXIT</button></div><div class="maptitle" style="color:#1E626B">// STUDY MODE</div><div class="mapsub" id="study-progress"></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:.7rem 1rem;width:100%;max-width:630px;margin:0 auto"><div class="qbox" id="study-qbox"><div class="qdom" id="study-qdom"></div><div class="qtxt" id="study-qtxt"></div><div class="answers" id="study-qans"></div></div><div class="fbb" id="study-fbb"></div><div class="cacts"><button class="btn" id="study-next-btn" onclick="studyNext()" style="display:none">NEXT</button></div></div></div>
+
+<div id="flashcards-screen" class="screen" style="align-items:center"><div class="ghdr"><a href="https://gridsage.ca" target="_blank" class="glogo"><svg viewBox="0 0 22 22" fill="none"><rect x=".5" y=".5" width="21" height="21" rx="3" stroke="#1E626B" stroke-width="1"/><rect x="9" y="9" width="3" height="3" fill="#1E626B"/></svg><span>GR<span style="color:#B87333">i</span>DSAGE</span></a><button class="btn btn-sm" onclick="showMap()" style="margin:0;border-color:var(--txd);color:var(--txd)">EXIT</button></div><div class="maptitle" style="color:#1E626B">// FLASHCARDS</div>
+<div id="fc-setup" class="fc-setup">
+  <div class="mapsub">Pick a domain, or study all of them.</div>
+  <div class="fc-domsel" id="fc-domsel">
+    <button class="dbtn sel" data-fcdom="all" onclick="fcSelectDomain('all')">ALL</button>
+    <button class="dbtn" data-fcdom="1" onclick="fcSelectDomain('1')">D1</button>
+    <button class="dbtn" data-fcdom="2" onclick="fcSelectDomain('2')">D2</button>
+    <button class="dbtn" data-fcdom="3" onclick="fcSelectDomain('3')">D3</button>
+    <button class="dbtn" data-fcdom="4" onclick="fcSelectDomain('4')">D4</button>
+    <button class="dbtn" data-fcdom="5" onclick="fcSelectDomain('5')">D5</button>
+  </div>
+  <div class="fc-count" id="fc-count"></div>
+  <button class="btn" onclick="startFlashcards()">START</button>
+</div>
+<div id="fc-session" style="display:none;width:100%">
+  <div class="fc-wrap">
+    <div class="fc-progress" id="fc-progress"></div>
+    <div class="fc-stage">
+      <div class="robo-cheer" id="robo-cheer"></div>
+      <div class="fcard" id="fcard" onclick="flipFlashcard()">
+        <div class="fcard-inner" id="fcard-inner">
+          <div class="fcard-face fcard-front"><div class="fc-dom" id="fc-front-dom"></div><div class="fc-q" id="fc-front-q"></div><div class="fc-tap">tap to reveal answer</div></div>
+          <div class="fcard-face fcard-back"><div class="fc-dom" id="fc-back-dom"></div><div class="fc-ans" id="fc-back-ans"></div><div class="fc-ex" id="fc-back-ex"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="fc-rate" id="fc-rate">
+      <button class="btn-d btn" onclick="rateFlashcard(false)">✗ MISSED IT</button>
+      <button class="btn" onclick="rateFlashcard(true)">✓ GOT IT</button>
+    </div>
+  </div>
+</div></div>
 <div id="review-screen" class="screen" style="align-items:center"><div class="ghdr"><a href="https://gridsage.ca" target="_blank" class="glogo"><svg viewBox="0 0 22 22" fill="none"><rect x=".5" y=".5" width="21" height="21" rx="3" stroke="#00e676" stroke-width="1"/><rect x="9" y="9" width="3" height="3" fill="#00e676"/></svg><span>GR<span style="color:#B87333">i</span>DSAGE</span></a><button class="btn btn-sm" onclick="showMap()" style="margin:0">BACK</button></div><div style="font-family:var(--m);font-size:1rem;color:var(--warn);padding:.8rem 0 .3rem;text-align:center">// MISSED QUESTIONS</div><div id="review-list" style="display:flex;flex-direction:column;gap:.4rem;padding:.6rem;width:min(600px,95vw);flex:1;overflow-y:auto"></div></div>
 <div id="exam-complete-screen" class="screen" style="align-items:center;justify-content:center;text-align:center;padding:1.2rem"><div id="exam-header" style="font-family:var(--m);font-size:1.3rem"></div><div id="exam-sub" style="color:var(--txd);margin-bottom:.8rem;font-size:.75rem"></div><div style="background:var(--bgc);border:1px solid var(--bdr);border-radius:4px;padding:1rem;width:min(420px,90vw);margin-bottom:1rem"><div style="font-size:.65rem;color:var(--txd);font-family:var(--m)">SCORE</div><div class="escore" id="exam-score-display"></div><div class="exam-verdict" id="exam-verdict" style="font-family:var(--m);font-size:.9rem;margin-bottom:.3rem"></div><div style="font-size:.58rem;color:var(--txd);margin-bottom:.5rem">Pass: 750/900</div><div id="domain-breakdown"></div></div><div class="leadbox"><h4>SAVE REPORT INFO (LOCAL)</h4><p>Stored only in this browser's local storage - nothing is sent anywhere. Use REVIEW ANSWERS above for your weak-area breakdown.</p><input type="text" class="leadin" id="exam-lead-name" placeholder="Name"><input type="email" class="leadin" id="exam-lead-email" placeholder="Email (optional, for your own reference)"><button class="btn btn-sm" onclick="submitExamLead()">SAVE</button><div id="exam-lead-confirm" style="display:none;font-family:var(--m);font-size:.65rem;margin-top:.3rem"></div></div><div style="display:flex;gap:.3rem;justify-content:center;flex-wrap:wrap"><button class="btn btn-sm" onclick="showExamReview()">REVIEW ANSWERS</button><button class="btn btn-sm" onclick="copyExamScore()">COPY</button><button class="btn btn-sm" onclick="location.reload()">AGAIN</button></div></div>
 <script>
@@ -327,6 +391,23 @@ const BP=[
 function heroSVG(){return rSpr(HD,HP,10,14);}
 function enemySVG(f,i){return rSpr(EB[i%EB.length],EP[(f*3+i)%EP.length],10,12);}
 function bossSVG(f){return rSpr(BD[f-1]||BD[0],BP[f-1]||BP[0],12,14);}
+function robotCheerSVG(){
+  const pom=(cx,cy,color)=>{let s='';for(let a=0;a<8;a++){const rad=a*Math.PI/4,x2=cx+Math.cos(rad)*7,y2=cy+Math.sin(rad)*7;s+=`<line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="2" stroke-linecap="round"/>`;}return s+`<circle cx="${cx}" cy="${cy}" r="2" fill="${color}"/>`;};
+  return `<svg viewBox="0 0 70 80" width="70" height="80">
+    <g class="robo-arm-l">${pom(16,50,'#8AA95B')}<line x1="29" y1="40" x2="16" y2="50" stroke="#c0cfe0" stroke-width="4" stroke-linecap="round"/></g>
+    <g class="robo-arm-r">${pom(54,50,'#B87333')}<line x1="41" y1="40" x2="54" y2="50" stroke="#c0cfe0" stroke-width="4" stroke-linecap="round"/></g>
+    <g class="robo-body">
+      <rect x="20" y="35" width="30" height="28" rx="5" fill="#c0cfe0"/>
+      <rect x="27" y="42" width="16" height="10" rx="2" fill="#1a2830"/>
+      <circle cx="31" cy="47" r="1.6" fill="#8AA95B"/><circle cx="39" cy="47" r="1.6" fill="#8AA95B"/>
+      <rect x="24" y="63" width="8" height="10" rx="2" fill="#8a97a8"/><rect x="38" y="63" width="8" height="10" rx="2" fill="#8a97a8"/>
+      <line x1="35" y1="15" x2="35" y2="8" stroke="#c0cfe0" stroke-width="2"/><circle cx="35" cy="7" r="2.5" fill="#B87333"/>
+      <rect x="23" y="15" width="24" height="20" rx="5" fill="#e4ecf5"/>
+      <circle cx="30" cy="24" r="2.4" fill="#1E626B"/><circle cx="40" cy="24" r="2.4" fill="#1E626B"/>
+      <path d="M28 30 Q35 34 42 30" stroke="#1E626B" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    </g>
+  </svg>`;
+}
 function fireGun(){const p=document.getElementById('proj');p.className='proj fire';setTimeout(()=>p.className='proj',300);}
 function showSparks(){const h=document.getElementById('hsparks');h.innerHTML='<svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2" fill="#ff0" opacity=".8"/><line x1="12" y1="3" x2="12" y2="0" stroke="#ff0" stroke-width="2"/><line x1="12" y1="21" x2="12" y2="24" stroke="#ff0" stroke-width="2"/><line x1="3" y1="12" x2="0" y2="12" stroke="#ff0" stroke-width="2"/><line x1="21" y1="12" x2="24" y2="12" stroke="#ff0" stroke-width="2"/></svg>';h.className='hsparks show';setTimeout(()=>h.className='hsparks',500);}
 function showDmg(t,cr){const d=document.getElementById('dmgf');d.textContent=t;d.style.color=cr?'var(--sp)':'var(--gs)';d.className='dmgf'+(cr?' crit':'')+' show';setTimeout(()=>d.className='dmgf',1100);}
@@ -1515,6 +1596,7 @@ function showMap(){
   const act=document.getElementById('map-actions');act.innerHTML='';
   const mc=getMC();
   const sb=document.createElement('button');sb.className='btn btn-sm';sb.style.cssText='border-color:var(--pbq);color:var(--pbq)';sb.textContent=mc>0?'STUDY MODE ('+mc+' due)':'STUDY MODE';sb.onclick=startStudy;act.appendChild(sb);
+  const fcb=document.createElement('button');fcb.className='btn btn-sm';fcb.style.cssText='border-color:var(--gs);color:var(--gs)';fcb.textContent='FLASHCARDS';fcb.onclick=startFlashcardsScreen;act.appendChild(fcb);
   if(mc>0){const b=document.createElement('button');b.className='btn btn-sm';b.style.cssText='border-color:var(--warn);color:var(--warn)';b.textContent='REVIEW LIST ('+mc+')';b.onclick=showReview;act.appendChild(b);}
   if(FL.every(f=>S.cleared.includes(f))){showVictory();return;}
   showScreen('map-screen');
@@ -1581,6 +1663,89 @@ function finishStudy(){
   const nb=document.getElementById('study-next-btn');nb.style.display='inline-block';nb.textContent='BACK TO MAP';nb.onclick=()=>showMap();
 }
 function confirmEndStudy(){if(!STU||confirm('Exit study mode? Your answers so far are already saved.'))showMap();}
+// ============================================================
+// FLASHCARDS - lightweight self-check study tool. Not a combat round:
+// the player judges their own recall, and GOT IT/MISSED IT feeds the
+// same spaced-repetition map that the rest of the game uses.
+// ============================================================
+let FCD='all',FC=null;
+function fcSelectDomain(d){
+  FCD=d;
+  document.querySelectorAll('#fc-domsel .dbtn').forEach(b=>b.classList.toggle('sel',b.dataset.fcdom===d));
+  const pool=fcPool(d);
+  document.getElementById('fc-count').textContent=pool.length+' card'+(pool.length===1?'':'s')+' available';
+}
+function fcPool(d){
+  const out=[];
+  FL.forEach(f=>{
+    if(d!=='all'&&String(f)!==d)return;
+    Q[f].questions.forEach(q=>out.push({...q,_d:f}));
+  });
+  return out;
+}
+function startFlashcards(){
+  const pool=fcPool(FCD);
+  if(!pool.length)return;
+  shuffle(pool);
+  FC={pool,idx:0,correct:0,total:pool.length};
+  document.getElementById('fc-setup').style.display='none';
+  document.getElementById('fc-session').style.display='block';
+  showFlashcard();
+}
+function showFlashcard(){
+  const card=document.getElementById('fcard');card.classList.remove('flipped');
+  document.getElementById('fc-rate').classList.remove('show');
+  const q=FC.pool[FC.idx];
+  document.getElementById('fc-progress').textContent='Card '+(FC.idx+1)+' of '+FC.pool.length+' - '+FC.correct+' correct so far';
+  document.getElementById('fc-front-dom').textContent='D'+q._d+': '+Q[q._d].name;
+  document.getElementById('fc-front-q').textContent=q.q;
+  document.getElementById('fc-back-dom').textContent='D'+q._d+': '+Q[q._d].name;
+  document.getElementById('fc-back-ans').textContent=q.a[q.c];
+  document.getElementById('fc-back-ex').textContent=q.ex||'';
+}
+function flipFlashcard(){
+  const card=document.getElementById('fcard');
+  const flipped=card.classList.toggle('flipped');
+  if(flipped)document.getElementById('fc-rate').classList.add('show');
+}
+function rateFlashcard(got){
+  const q=FC.pool[FC.idx];
+  if(got){FC.correct++;hit(q._d,q.q);showRoboCheer();}
+  else{miss(q._d,q.q);}
+  setTimeout(()=>{
+    FC.idx++;
+    if(FC.idx>=FC.pool.length)finishFlashcards();else showFlashcard();
+  },got?650:150);
+}
+function showRoboCheer(){
+  const el=document.getElementById('robo-cheer');if(!el)return;
+  el.innerHTML=robotCheerSVG();
+  el.classList.remove('show');void el.offsetWidth;el.classList.add('show');
+  setTimeout(()=>{el.classList.remove('show');el.innerHTML='';},950);
+}
+function finishFlashcards(){
+  const pct=FC.total>0?Math.round(FC.correct/FC.total*100):100;
+  document.getElementById('fc-progress').textContent='Session complete';
+  const card=document.getElementById('fcard');card.classList.remove('flipped');card.onclick=null;
+  document.getElementById('fc-front-dom').textContent='';
+  document.getElementById('fc-front-q').innerHTML='<strong>Deck complete!</strong><br>'+FC.correct+' / '+FC.total+' ('+pct+'%) marked as known.';
+  document.getElementById('fc-front-q').closest('.fcard-front').querySelector('.fc-tap').style.display='none';
+  document.getElementById('fc-rate').classList.remove('show');
+  document.getElementById('fc-rate').innerHTML='<button class="btn btn-sm" onclick="startFlashcards()">STUDY AGAIN</button><button class="btn btn-sm" onclick="fcBackToSetup()">CHANGE DOMAIN</button><button class="btn btn-sm" onclick="showMap()">BACK TO MAP</button>';
+  document.getElementById('fc-rate').classList.add('show');
+}
+function fcBackToSetup(){
+  FC=null;
+  document.getElementById('fc-session').style.display='none';
+  document.getElementById('fc-setup').style.display='flex';
+  document.getElementById('fc-rate').innerHTML='<button class="btn-d btn" onclick="rateFlashcard(false)">✗ MISSED IT</button><button class="btn" onclick="rateFlashcard(true)">✓ GOT IT</button>';
+  document.getElementById('fcard').onclick=flipFlashcard;
+  fcSelectDomain(FCD);
+}
+function startFlashcardsScreen(){
+  fcBackToSetup();
+  showScreen('flashcards-screen');
+}
 // ============================================================
 // COMBAT
 // ============================================================
