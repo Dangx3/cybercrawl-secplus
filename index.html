@@ -1701,7 +1701,7 @@ function submitTimeline(){
   items.forEach(el=>{el.draggable=false;el.style.cursor='default';});
   const fb=document.getElementById('fbb');
   if(allOk){fb.className='fbb show cfb';fb.innerHTML='<strong>Correct order!</strong>';showSparks();showDmg('-1',false);C.eHp=0;updateEH();S.tc++;C.fc++;S.xp+=XPINT;}
-  else{fb.className='fbb show wfb';fb.innerHTML='<strong>Incorrect order.</strong> Review the correct sequence above.';S.hp-=DIFF[S.diff].pDmg;S.tw++;C.fw++;C.perfect=false;shakeScr();if(S.hp<=0){S.hp=0;save();updateHud('c-');setTimeout(()=>showScreen('gameover-screen'),600);return;}}
+  else{fb.className='fbb show wfb';fb.innerHTML='<strong>Incorrect order.</strong> The correct sequence was: <strong>'+sc.items.map(it=>it.text).join(' → ')+'</strong>';S.hp-=DIFF[S.diff].pDmg;S.tw++;C.fw++;C.perfect=false;shakeScr();if(S.hp<=0){S.hp=0;save();updateHud('c-');setTimeout(()=>showScreen('gameover-screen'),600);return;}}
   save();updateHud('c-');
   // Show follow-up
   document.getElementById('qbox').style.display='';document.getElementById('qdom').textContent='Sequence Lab';document.getElementById('qtxt').textContent=sc.q;
@@ -1748,7 +1748,7 @@ function submitClassify(){
   document.getElementById('cls-submit-btn').style.display='none';
   const fb=document.getElementById('fbb');
   if(allOk){fb.className='fbb show cfb';fb.innerHTML='<strong>All correctly classified!</strong>';showSparks();showDmg('-1',false);C.eHp=0;updateEH();S.tc++;C.fc++;S.xp+=XPINT;}
-  else{fb.className='fbb show wfb';fb.innerHTML='<strong>Some were misclassified.</strong> Review the highlighted items above.';S.hp-=DIFF[S.diff].pDmg;S.tw++;C.fw++;C.perfect=false;shakeScr();if(S.hp<=0){S.hp=0;save();updateHud('c-');setTimeout(()=>showScreen('gameover-screen'),600);return;}}
+  else{const corrections=sc.items.filter((it,i)=>clsAssignments[i]!==it.cat).map(it=>it.text+' → <strong>'+sc.categories[it.cat]+'</strong>').join('; ');fb.className='fbb show wfb';fb.innerHTML='<strong>Some were misclassified.</strong> Correct: '+corrections;S.hp-=DIFF[S.diff].pDmg;S.tw++;C.fw++;C.perfect=false;shakeScr();if(S.hp<=0){S.hp=0;save();updateHud('c-');setTimeout(()=>showScreen('gameover-screen'),600);return;}}
   save();updateHud('c-');
   document.getElementById('qbox').style.display='';document.getElementById('qdom').textContent='Classification Lab';document.getElementById('qtxt').textContent=sc.q;
   const idx2=[0,1,2,3];shuffle(idx2);const ad=document.getElementById('qans');ad.innerHTML='';
@@ -1760,7 +1760,7 @@ function ansInt(idx,sc,btn){
   if(!ok)btn.classList.add('no');
   const fb=document.getElementById('fbb');
   if(ok){C.eHp=0;updateEH();showSparks();showDmg('-1',false);S.tc++;C.fc++;S.xp+=XPINT;hit(C.floor,sc.q);if(roleMatchesQuestion({...sc,_d:C.floor}))S.roleXp=(S.roleXp||0)+10;fb.className='fbb show cfb';fb.innerHTML='<strong>Correct!</strong> '+sc.ex+whyHTML(sc);checkLvl(fb);}
-  else{const dmg=DIFF[S.diff].pDmg;S.hp-=dmg;S.tw++;C.fw++;C.perfect=false;miss(C.floor,sc.q);shakeScr();fb.className='fbb show wfb';fb.innerHTML='<strong>Wrong! -'+dmg+' HP.</strong> '+sc.ex+whyHTML(sc);if(S.hp<=0){S.hp=0;save();updateHud('c-');setTimeout(()=>showScreen('gameover-screen'),600);return;}}
+  else{const dmg=DIFF[S.diff].pDmg;S.hp-=dmg;S.tw++;C.fw++;C.perfect=false;miss(C.floor,sc.q);shakeScr();fb.className='fbb show wfb';fb.innerHTML='<strong>Wrong! -'+dmg+' HP.</strong> The correct answer was: <strong>'+sc.a[sc.c]+'</strong>. '+sc.ex+whyHTML(sc);if(S.hp<=0){S.hp=0;save();updateHud('c-');setTimeout(()=>showScreen('gameover-screen'),600);return;}}
   save();updateHud('c-');C.fInt++;S.intCompleted++;
   const nb=document.getElementById('next-btn');nb.textContent='NEXT';nb.className='btn';nb.style.display='inline-block';nb._pd=null;
 }
@@ -1806,7 +1806,7 @@ function ansReg(idx,q,btn){
   if(!ok)btn.classList.add('no');
   const fb=document.getElementById('fbb');
   if(ok){C.eHp--;updateEH();fireGun();setTimeout(()=>{showSparks();showDmg('-1',false);const el=document.getElementById('esprite');el.classList.add('hit');setTimeout(()=>el.classList.remove('hit'),350);},200);S.xp+=(C.isBoss?XPB:XPA);S.tc++;C.fc++;hit(C.floor,q.q);if(roleMatchesQuestion(q))S.roleXp=(S.roleXp||0)+(C.isBoss?15:5);fb.className='fbb show cfb';fb.innerHTML='<strong>Hit!</strong> '+q.ex+whyHTML(q);checkLvl(fb);}
-  else{const dmg=C.isBoss?cfg.bDmg:cfg.dmg;S.hp-=dmg;S.tw++;C.fw++;C.perfect=false;miss(C.floor,q.q);shakeScr();fb.className='fbb show wfb';fb.innerHTML='<strong>Miss! -'+dmg+' HP.</strong> '+q.ex+whyHTML(q);if(S.hp<=0){S.hp=0;stopFT();save();updateHud('c-');setTimeout(()=>showScreen('gameover-screen'),600);return;}}
+  else{const dmg=C.isBoss?cfg.bDmg:cfg.dmg;S.hp-=dmg;S.tw++;C.fw++;C.perfect=false;miss(C.floor,q.q);shakeScr();fb.className='fbb show wfb';fb.innerHTML='<strong>Miss! -'+dmg+' HP.</strong> The correct answer was: <strong>'+q.a[q.c]+'</strong>. '+q.ex+whyHTML(q);if(S.hp<=0){S.hp=0;stopFT();save();updateHud('c-');setTimeout(()=>showScreen('gameover-screen'),600);return;}}
   save();updateHud('c-');showNextBtn();
 }
 function showSpecQ(){
@@ -1846,7 +1846,7 @@ function ansPbq(idx,step,btn,pd){
   if(!ok)btn.classList.add('no');
   const fb=document.getElementById('fbb');
   if(ok){C.eHp--;C.pbqS.ok++;updateEH();showSparks();showDmg('-1',false);S.xp+=XPPBQ;S.tc++;C.fc++;hit(C.floor,step.q);if(roleMatchesQuestion({...step,_d:C.floor}))S.roleXp=(S.roleXp||0)+8;fb.className='fbb show cfb';fb.innerHTML='<strong>Correct!</strong> '+step.ex+whyHTML(step);checkLvl(fb);}
-  else{S.hp-=cfg.pDmg;S.tw++;C.fw++;C.perfect=false;miss(C.floor,step.q);shakeScr();fb.className='fbb show wfb';fb.innerHTML='<strong>Wrong! -'+cfg.pDmg+' HP.</strong> '+step.ex+whyHTML(step);if(S.hp<=0){S.hp=0;save();updateHud('c-');setTimeout(()=>showScreen('gameover-screen'),600);return;}}
+  else{S.hp-=cfg.pDmg;S.tw++;C.fw++;C.perfect=false;miss(C.floor,step.q);shakeScr();fb.className='fbb show wfb';fb.innerHTML='<strong>Wrong! -'+cfg.pDmg+' HP.</strong> The correct answer was: <strong>'+step.a[step.c]+'</strong>. '+step.ex+whyHTML(step);if(S.hp<=0){S.hp=0;save();updateHud('c-');setTimeout(()=>showScreen('gameover-screen'),600);return;}}
   save();updateHud('c-');C.pbqS.cur++;
   const nb=document.getElementById('next-btn');
   if(C.pbqS.cur>=C.pbqS.steps.length){const pct=Math.round(C.pbqS.ok/C.pbqS.steps.length*100);const verdict=pct>=90?'Excellent — you handled this scenario like a pro.':pct>=70?'Good — solid response, review the steps you missed.':'Needs review — revisit this scenario’s core concepts.';fb.innerHTML+='<div style="margin-top:.5rem;font-family:var(--m);font-size:.68rem;color:var(--pbq)">PBQ RESULT: '+C.pbqS.ok+'/'+C.pbqS.steps.length+' (' +pct+'%) — '+verdict+'</div>';nb.textContent='DONE';}
